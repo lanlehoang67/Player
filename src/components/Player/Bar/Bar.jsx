@@ -10,31 +10,20 @@ class Bar extends React.PureComponent {
             currentSong: null,
         }
     }
-    componentDidMount(){
-        const {playing, song} = this.props;
-        if(playing == true && song != null){
-        this.setState({
-            playing: playing,
-            currentSong: new Audio(song.src)
-        })
-    }
-    }
     componentDidUpdate(prevProps, prevState){
-        const {playing, song} = this.props;
-        console.log(prevState.currentSong)
-        console.log(song)
-
-        if(playing == true && song != null){
-
-            if(prevState.currentSong != song){
-                var track = new Audio(song.src);
-            this.setState({
-                playing: playing,
-                currentSong: track
-            })
+            const {playing, song} = this.props;
+            if(song != null){
+                if(prevState.currentSong != new Audio(prevProps.song.src)){
+                    var track = new Audio(song.src);
+                this.setState({
+                    playing: playing,
+                    currentSong: track
+                })
+                }
             }
             
-        }
+            
+        
        
         
     }

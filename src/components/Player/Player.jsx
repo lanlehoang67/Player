@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Bar from "./Bar/Bar";
 const styles = {
   main: {
     display: "inline-block",
@@ -52,7 +51,24 @@ const styles = {
   },
   volumeBar:{
     margin: "7px 0 0 5px"
-  }
+  },
+  progressBar: {
+    display: 'flex',
+    width: '420px',
+    height: '5px'
+},
+bar: {
+    display: 'block',
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    opacity: '50%',
+    transition: 'width 10s ease-in'
+},
+soundBar: {
+  display: 'flex',
+    width: '60px',
+    height: '5px'
+}
 };
 
 class Player extends Component {
@@ -61,10 +77,27 @@ class Player extends Component {
     this.state = {
       playing: false,
       currentSongId: -1,
-    };
+      currentTime: 0
+    };  
   }
+
+  componentWillUpdate(nextProps, nextState){
+    if(nextProps != undefined && this.state.currentSongId != nextState.currentSongId){
+      this.player.src = nextProps.songs[nextState.currentSongId].src;
+    }
+   
+  }
+  componentDidUpdate(prevProps, prevState){
+    if(prevState.playing){
+      this.player.pause()
+    }
+    else{
+      this.player.play()
+    }
+  }
+  
+   
   handleClick = (e) =>{
-    console.log(e.target.closest('div').className)
     switch(e.target.closest('div').className){
       case "play":
         this.setState((state,props)=>{
@@ -108,9 +141,13 @@ class Player extends Component {
             <i className="fas fa-step-forward"></i>
           </div>
           <div style={styles.playBar}>
-            <Bar playing={this.state.playing} song={currentSong} width="420px"></Bar>
+          <div style={styles.progressBar} className="progress-bar">
+          <audio ref={ref => this.player = ref} />
+
+        <div style={styles.bar} className="bar"></div>
+        </div>
           </div>
-          <div>00:03</div>
+          <div id="start-time">00:03</div>
           <div style={styles.div} onClick={this.handleClick} className="repeat">
             <i className="fas fa-retweet"></i>
           </div>
@@ -121,7 +158,9 @@ class Player extends Component {
             <i className="fas fa-volume-up"></i>
           </div>
           <div style={styles.volumeBar}>
-            <Bar width="50px"></Bar>
+          <div style={styles.soundBar}>
+        <div style={styles.bar} className="sound-bar"></div>
+        </div>
           </div>
         </div>
       </div>
