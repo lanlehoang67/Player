@@ -62,7 +62,6 @@ bar: {
     width: "100%",
     backgroundColor: "#FFFFFF",
     opacity: '50%',
-    transition: 'width 10s ease-in'
 },
 soundBar: {
   display: 'flex',
@@ -95,11 +94,42 @@ class Player extends Component {
       this.player.play()
     }
   }
+  initProgressBar = () => {
+    var progressbar = document.getElementsByClassName('bar');
+  progressbar[0].value = (this.player.currentTime / this.player.duration);
+  progressbar[0].addEventListener("click", seek);
+  function seek(evt) {
+    
+      var player = document.getElementsByTagName("audio")[0]
+    var percent = evt.offsetX / this.offsetWidth;
+    player.currentTime = percent * player.duration;
+    progressbar[0].value = percent / 100;
+    
+  }
+  }
+  calculateCurrentValue = currentTime => {
+    var current_hour = parseInt(currentTime / 3600) % 24,
+      current_minute = parseInt(currentTime / 60) % 60,
+      current_seconds_long = currentTime % 60,
+      current_seconds = current_seconds_long.toFixed(),
+      current_time = (current_minute < 10 ? "0" + current_minute : current_minute) + ":" + (current_seconds < 10 ? "0" + current_seconds : current_seconds);
   
+    return current_time;
+  }
    
   handleClick = (e) =>{
     switch(e.target.closest('div').className){
       case "play":
+        let interval = setInterval(()=>{
+          document.getElementById("start-time").innerHTML = this.calculateCurrentValue(this.player.currentTime);
+          if(this.player.currentTime == this.player.duration){
+            this.player.currentTime =0;
+            this.setState({
+              playing: false
+            })
+          }
+        },1000)
+        
         this.setState((state,props)=>{
           let currentSongId = state.currentSongId;
           if(currentSongId == -1){
@@ -114,6 +144,7 @@ class Player extends Component {
         this.setState({
           playing: !this.state.playing
         })
+      
     }
   }
   render() {
@@ -142,12 +173,12 @@ class Player extends Component {
           </div>
           <div style={styles.playBar}>
           <div style={styles.progressBar} className="progress-bar">
-          <audio ref={ref => this.player = ref} />
+          <audio onTimeUpdate={this.initProgressBar} ref={ref => this.player = ref} />
 
-        <div style={styles.bar} className="bar"></div>
+        <progress style={styles.progressBar} className="bar"></progress>
         </div>
           </div>
-          <div id="start-time">00:03</div>
+          <div id="start-time">00:00</div>
           <div style={styles.div} onClick={this.handleClick} className="repeat">
             <i className="fas fa-retweet"></i>
           </div>

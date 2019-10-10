@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import Player from './components/Player/Player';
 import EmCuaNgayHomQua from './musics/em_cua_ngay_hom_qua.mp3'
+import Mabataki from './musics/mabataki.mp3'
 const styles = {
   display: "inline-block",
   width: "100%",
@@ -20,12 +21,13 @@ const songs = [
   src: EmCuaNgayHomQua
   },
   {
-  name: "Người Anh Em",
-  lyrics: "Cuộc đời rộng lớn có bao la Làm sao sánh được hai từ anh em", 
-  author: "Nhạc Hoa, Lời Việt: Mạnh Thắng",
-  genre: "Nhạc Hoa",
+  name: "Mabataki",
+  lyrics: "Shiawase to wa hoshi ga furu yoru to, mabushii asa ga", 
+  author: "Back number",
+  genre: "Nhạc Nhật",
   views: "154.225",
-  download: "1650"
+  download: "1650",
+  src: Mabataki
   }
   ]
 function App() {
