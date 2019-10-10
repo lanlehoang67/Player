@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 import React, { Component } from "react";
 const styles = {
   main: {
@@ -66,7 +67,8 @@ bar: {
 soundBar: {
   display: 'flex',
     width: '60px',
-    height: '5px'
+    height: '5px',
+    verticalAlign: 'middle'
 }
 };
 
@@ -76,7 +78,8 @@ class Player extends Component {
     this.state = {
       playing: false,
       currentSongId: -1,
-      currentTime: 0
+      currentTime: 0,
+      repeat: false
     };  
   }
 
@@ -84,28 +87,35 @@ class Player extends Component {
     if(nextProps != undefined && this.state.currentSongId != nextState.currentSongId){
       this.player.src = nextProps.songs[nextState.currentSongId].src;
     }
-   
+    
   }
   componentDidUpdate(prevProps, prevState){
+    if(prevState.repeat){
+      this.player.loop = true;
+    }
     if(prevState.playing){
       this.player.pause()
     }
     else{
       this.player.play()
     }
+    
   }
   initProgressBar = () => {
-    var progressbar = document.getElementsByClassName('bar');
-  progressbar[0].value = (this.player.currentTime / this.player.duration);
-  progressbar[0].addEventListener("click", seek);
-  function seek(evt) {
-    
-      var player = document.getElementsByTagName("audio")[0]
-    var percent = evt.offsetX / this.offsetWidth;
-    player.currentTime = percent * player.duration;
-    progressbar[0].value = percent / 100;
-    
-  }
+    if(this.player.currentTime != 0 && this.player.duration != 0){
+      var progressbar = document.getElementsByClassName('bar');
+      progressbar[0].value = (this.player.currentTime / this.player.duration);
+      progressbar[0].addEventListener("click", seek);
+      function seek(evt) {
+        
+          var player = document.getElementsByTagName("audio")[0]
+        var percent = evt.offsetX / this.offsetWidth;
+        player.currentTime = percent * player.duration;
+        progressbar[0].value = percent / 100;
+        
+      }
+    }
+   
   }
   calculateCurrentValue = currentTime => {
     var current_hour = parseInt(currentTime / 3600) % 24,
@@ -137,19 +147,57 @@ class Player extends Component {
           }
           return {
             playing: true,
-            currentSongId: currentSongId
+            currentSongId: currentSongId,
+           
           }
         })
       case "pause":
         this.setState({
           playing: !this.state.playing
         })
-      
     }
+  }
+  handleSkipClick = () => {
+      if(this.state.currentSongId +1 < this.props.songs.length){
+        if(this.state.currentSongId == -1){
+          this.setState({
+            playing: false,
+            currentSongId: this.state.currentSongId +2,
+          })
+        }
+        else this.setState({
+          playing: false,
+          currentSongId: this.state.currentSongId +1,
+        })
+      }
+        
+      }
+  handleRepeatClick = (e) => {
+    if(this.state.repeat){
+      e.target.style.color = "white"
+    this.setState({
+      repeat: false
+    })
+    }
+    else{
+      e.target.style.color = "blue"
+    this.setState({
+      repeat: true
+    })
+    }
+    
+  }
+  handleSoundClick = (e) => {
+    e.target.closest("div").addEventListener("click", (event)=>{
+      
+      var x = ((event.x - 700)/300).toFixed(1);
+      event.target.style = "width:"+ x*100 + "%";
+      this.player.volume = x;
+    })
   }
   render() {
     const {songs} = this.props;
-    const currentSong = songs[0]
+    const currentSong = this.state.currentSongId === -1 ? songs[0] : songs[this.state.currentSongId]
     return (
      <div style={styles.main}>
         <p style={styles.title}>{currentSong.name}</p>
@@ -168,19 +216,19 @@ class Player extends Component {
           <i className="fas fa-pause"></i>
           </div>
           }
-          <div onClick={this.handleClick} className="forward">
-            <i className="fas fa-step-forward"></i>
+          <div  className="forward">
+            <i onClick={this.handleSkipClick} className="fas fa-step-forward"></i>
           </div>
           <div style={styles.playBar}>
           <div style={styles.progressBar} className="progress-bar">
           <audio onTimeUpdate={this.initProgressBar} ref={ref => this.player = ref} />
 
-        <progress style={styles.progressBar} className="bar"></progress>
+        <progress style={styles.progressBar} className="bar" ></progress>
         </div>
           </div>
           <div id="start-time">00:00</div>
-          <div style={styles.div} onClick={this.handleClick} className="repeat">
-            <i className="fas fa-retweet"></i>
+          <div style={styles.div}  className="repeat">
+            <i onClick={this.handleRepeatClick} className="fas fa-retweet"></i>
           </div>
           <div style={styles.div} onClick={this.handleClick} className="shuffle">
             <i className="fas fa-random"></i>
@@ -189,8 +237,8 @@ class Player extends Component {
             <i className="fas fa-volume-up"></i>
           </div>
           <div style={styles.volumeBar}>
-          <div style={styles.soundBar}>
-        <div style={styles.bar} className="sound-bar"></div>
+          <div style={styles.soundBar} className="w3-border">
+        <div style={styles.bar} className="sound-bar w3-grey" onClick={this.handleSoundClick}></div>
         </div>
           </div>
         </div>
